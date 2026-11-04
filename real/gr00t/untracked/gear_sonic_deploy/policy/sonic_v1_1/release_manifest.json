@@ -1,0 +1,19 @@
+{
+  "hf_revision": "6733128a3d8a523b1418b06bca3cdf61c8b0987f",
+  "models": [
+    {
+      "name": "model_encoder.onnx",
+      "sha256": "fb97de22819b2057b41459802128d91723d91a25f0ad73e7bfc41a9cf8365bae",
+      "bytes": 50117796
+    },
+    {
+      "name": "model_decoder.onnx",
+      "sha256": "34bae8570d4a4421a5391a5c2befd745d4a02d182ec539e5f9da44c091c67509",
+      "bytes": 149778638
+    }
+  ],
+  "observation_config_sha256": "4a67713b310932e50aca81f19188c8d76013148e98b15c8b5bbea995f12e59f0",
+  "upstream_code_revision": "087f9ac01d46f6d8e4d0b73c01ae64799f292a38",
+  "motor_kp_scale": "4,10=1.5",
+  "motor_kd_scale": "4,10=1.5"
+}

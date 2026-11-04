@@ -1,0 +1,3 @@
+-r requirements.txt
+pyarrow>=15,<26
+opencv-python-headless>=4.8,<6

@@ -1,0 +1,14 @@
+{
+  "name": "neutral_kick_R_001__A543",
+  "selection_basis": "Actual existing WS launcher default and directory; only frame zero paused is used. Not physically revalidated by this package.",
+  "files": {
+    "joint_vel.csv": "0e8dbc5c76804001bd6f0bae1e3614f4918cf9fff79c5c3f11202a98ed1a1e4b",
+    "info.txt": "dd64990a06bab09df236bedc68feda872f926cf66c8d220fd43e7a826b192327",
+    "joint_pos.csv": "8b4f673ad056dc7b2e3f2623d39d345b951bd7b9c0c50abc6eb50eb70d952654",
+    "body_quat.csv": "90803a0726495abea7af897e52f3324b8083e0b7c81cad1d1289dc742b3ece61",
+    "body_ang_vel.csv": "6af68c82e8ad931922be4bfbd60782b011c3f4ba6a831a658efd4c85720817aa",
+    "metadata.txt": "c69ef7fbda42adad3c399964c886a5eb554ce8948b8d34c227e66000fb3777de",
+    "body_pos.csv": "5005f2babd28afb97707e78f67fff561350e1fa0664f799de6ca32046524170a",
+    "body_lin_vel.csv": "0a4120efff6f569e3a59c8e903d319b4f4c739367b85683f1b2d50df32e776d3"
+  }
+}

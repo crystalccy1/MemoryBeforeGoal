@@ -1,0 +1,18 @@
+{
+  "source_root": "${PACKAGE}/runtime/controller-source",
+  "binary": null,
+  "network_interface": "auto",
+  "decoder": "${PACKAGE}/runtime/controller-source/gear_sonic_deploy/policy/release/model_decoder.onnx",
+  "encoder": "${PACKAGE}/runtime/controller-source/gear_sonic_deploy/policy/release/model_encoder.onnx",
+  "observation_config": "${PACKAGE}/runtime/controller-source/gear_sonic_deploy/policy/release/observation_config.yaml",
+  "reference_dir": "${PACKAGE}/runtime/controller-source/gear_sonic_deploy/reference/example",
+  "default_motion": "neutral_kick_R_001__A543",
+  "planner": "${PACKAGE}/runtime/controller-source/gear_sonic_deploy/planner/target_vel/V2/planner_sonic.onnx",
+  "lease_timeout_ms": 250,
+  "zmq_host": "127.0.0.1",
+  "zmq_port": 5556,
+  "zmq_topic": "pose",
+  "out_port": 5557,
+  "out_topic": "g1_debug",
+  "max_close_ratio": 1.0
+}

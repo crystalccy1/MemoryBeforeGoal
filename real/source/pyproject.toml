@@ -1,0 +1,147 @@
+[project]
+name = "psi"
+version = "0.0.0"
+description = "Psi: towards humanoid foundation model"
+readme = "README.md"
+requires-python = "==3.11.*"
+dependencies = [
+    "albumentations==1.4.18",
+    "datasets==3.6.0",
+    "dm-tree==0.1.8",
+    "einops==0.8.1",
+    "einx>=0.3.0",
+    "h5py==3.14.0",
+    "imageio==2.34.2",
+    "jsonlines>=4.0.0",
+    "numpy<2.0.0",
+    "numpydantic==1.6.7",
+    "omegaconf>=2.3.0",
+    "opencv-python",
+    "plotly==6.2.0",
+    "pydantic==2.10.6",
+    "pydantic-yaml>=1.6.0",
+    "tqdm==4.67.1",
+    "typer>=0.19.1",
+    "tyro==0.9.32",
+    "vuer[all]>=0.0.68",
+    "wandb[media]>=0.20.0",
+    "simplejpeg>=1.9.0",
+    "dotenv",
+    "gdown>=5.2.0",
+    "decord2",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+psi = ["assets/*"]
+
+[tool.uv.sources]
+psi = { path = ".", editable = true }
+#simple = { path = "third_party/SIMPLE", editable = true }
+#nvidia-curobo = { path = "third_party/SIMPLE/third_party/curobo", editable = true }
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[dependency-groups]
+serve = [
+    "fastapi",
+    "uvicorn",
+]
+
+viz = [
+    "transforms3d>=0.4.2",
+    "vuer[all]>=0.0.68",
+    "viser>=1.0.15",
+    "matplotlib",
+    #"pin>=3.8.0",
+    #"numpy<2.0.0",
+]
+
+psi = [
+    "setuptools>=61",
+    "torch==2.7.0",
+    "torchvision==0.22.0",
+    "torchcodec==0.4.0",
+    "transformers==4.57.1",
+    "deepspeed==0.17.1",
+    #"flash_attn==2.7.4.post1",
+    "triton==3.3.0",
+    "accelerate==1.7.0",
+    "peft==0.17.1",
+    "qwen-vl-utils==0.0.14",
+    "sentencepiece",
+    "evdev<1.7",
+    "lerobot @ git+https://github.com/songlin/lerobot.git@09929d8057b044b53aecaf5c6d7eb71f99e8beb9"
+]
+
+#simple = [
+#   "simple[full]",
+#   "nvidia-curobo[isaacsim]",
+#]
+
+egoverse = [
+    "projectaria-tools[all]==2.0.0",
+    "pyyaml",
+    "matplotlib",
+    "packaging",
+    "ipython",
+    "rich",
+    "hydra-core",
+    "hydra-submitit-launcher==1.2.0",
+    "black",
+    "gpustat",
+    "nvidia-ml-py",
+    "termcolor",
+    "pyquaternion",
+    "rospkg",
+    "av", # ==12.0.0
+    "dm-control==1.0.8",
+    "mink==0.0.13",
+    "mujoco==3.4.0",
+    "mujoco-py==2.1.2.14",
+    "submitit",
+    "arm_pytorch_utilities",
+    "pytorch-kinematics",
+    "lightning",
+    "positional-encodings[pytorch]",
+    "pandas",
+    "overrides",
+    "zarr==3.1.5",
+    "tabulate",
+    "timm",
+    "boto3",
+    "cloudpathlib",
+    "sqlalchemy",
+    "psycopg[binary]",
+    "ray",
+    "geomloss",
+    "tslearn",
+    "typing_extensions",
+    "pyarrow",
+    "prettytable",
+    "s5cmd",
+    "mediapy",
+    "pytest",
+    "pre-commit",
+    "ruff",
+]
+
+[tool.uv.extra-build-dependencies]
+flash-attn = ["wheel", { requirement = "torch", match-runtime = true }]
+
+[project.scripts]
+serve_psi0_simple = "psi.deploy.serve_psi0_simple:main"
+serve_psi0_simple_multi = "psi.deploy.serve_psi0_simple_multi:main"
+serve_psi0_amo = "psi.deploy.serve_psi0_amo:main"
+serve_psi0_sonic = "psi.deploy.serve_psi0_sonic:main"
+serve_psi0_sonic_http = "psi.deploy.serve_psi0_sonic_http:main"
+serve_psi0_sonic_subgoal = "psi.deploy.serve_psi0_sonic_subgoal:main"
+serve_psi0_dexmate = "psi.deploy.serve_psi0_dexmate:main"
+download_ckpt = "psi.deploy.download_ckpt:main"
+upload_ckpt_hf = "psi.deploy.upload_ckpt_hf:main"
+upload_ckpt_ms = "psi.deploy.upload_ckpt_ms:main"
+download_ckpt_ms = "psi.deploy.download_ckpt_ms:main"

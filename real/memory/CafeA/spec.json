@@ -1,0 +1,61 @@
+{
+  "memory": "SAM3-v2: native keyframe memory + SAM3 object memory",
+  "model": {
+    "memory_head_dim": 256,
+    "memory_heads": 6,
+    "memory_modulation_init": "robomme_normal_std_0_002",
+    "memory_position_dim": 768,
+    "object_gate_init": "zero_out_proj",
+    "object_slots": 3,
+    "objmem_bank_manifest_sha256": "16a000020f3c4d63e548782bed91e48a4484a3863e49c3b5b7ed6ab221556430",
+    "objmem_enabled": true
+  },
+  "native_keyframes": {
+    "feature": "Qwen3-VL vision merger (m0), 2048/cell",
+    "grid_hw": [
+      7,
+      11
+    ],
+    "image_resize_hw": [
+      180,
+      320
+    ],
+    "max_frames": 7
+  },
+  "objects": {
+    "geometry_fields": [
+      "x0",
+      "y0",
+      "x1",
+      "y1",
+      "cx",
+      "cy",
+      "area_fraction",
+      "visible"
+    ],
+    "object_slots": 3,
+    "pooling": "per-cell mask area fraction on the native 7x11 grid (adaptive avg pool), weighted mean",
+    "prompts": [
+      "pepsi can",
+      "black tape square",
+      "human hand"
+    ],
+    "slot_policy": "slot k = SAM3 prompt k; best eligible object by score*(0.6+0.4*sqrt(area))"
+  },
+  "sam3": {
+    "bytes": 3450062241,
+    "file": "sam3.pt",
+    "hf_repo": "facebook/sam3",
+    "hf_revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+    "sha256": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+    "vendor_commit": "2345a4ad109ac29c569da749c91d84f10dc08c40"
+  },
+  "selector": {
+    "causal": true,
+    "event_fraction": 0.75,
+    "event_min_gap": 5,
+    "max_frames": 7,
+    "score_threshold": 0.35,
+    "source_sha256": "cdc7942c557d9c22c66220f1eab04be367c02e29e89e19facd0bf222bfd6ae26"
+  }
+}

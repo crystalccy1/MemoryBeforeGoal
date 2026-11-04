@@ -1,0 +1,23 @@
+{
+  "base": "GR00T-WholeBodyControl d40376994ff0 + real/gr00t (local changes of the deployment machine, 2026-09-20)",
+  "base_git_commit": "d40376994ff094787591ab76a691c50b8e131786",
+  "protocol": "cart78.token_lease.v1",
+  "files": [
+    {
+      "path": "gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/include/input_interface/zmq_endpoint_interface.hpp",
+      "base_sha256": "13b0e62ec772aa0bdde116c200dcf12ecafc53cc40ab8dcb1c18e26dd1bfde06",
+      "patched_sha256": "1701d3b7285f4d586480178f329a11407cc848642e9fc7be5378d67d1d74ce3a"
+    },
+    {
+      "path": "gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/src/g1_deploy_onnx_ref.cpp",
+      "base_sha256": "5eb6cc2ff1454b29cc5f713f00f134b4b236777aeeda4ad48dce1da9e2166056",
+      "patched_sha256": "9d9c590511cd1e1606ab1e048e9ee995dcc9eabb50bd0b3acfb37620d958b08c"
+    },
+    {
+      "path": "gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/include/input_interface/cart78_token_lease.hpp",
+      "base_sha256": null,
+      "patched_sha256": "b0ead1cc7661f29a65210fd9a71976a98986b25c74b9ebf5e792aad638599cdd"
+    }
+  ],
+  "patch_sha256": "dc95262b7255f1e58f054c730bef0b688ebb870859f0674ebedacd6dc9dacc0b"
+}

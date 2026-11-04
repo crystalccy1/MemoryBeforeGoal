@@ -1,0 +1,347 @@
+--- a/gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/include/input_interface/zmq_endpoint_interface.hpp
++++ b/gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/include/input_interface/zmq_endpoint_interface.hpp
+@@ -85,6 +85,8 @@
+  *   STORES:   token_state → external_token_state_ (for policy input)
+  *             hand joints → left_hand_joint_/right_hand_joint_ (for robot control)
+  */
++#include "cart78_token_lease.hpp"
++
+ class ZMQEndpointInterface : public InputInterface {
+ public:
+     /// Compile-time toggle for debug log output.
+@@ -107,7 +109,7 @@
+ 
+     /// When true, handle_input() reads from the ZMQ stream instead of
+     /// pre-loaded reference motions.
+-    bool use_zmq_stream = false;
++    std::atomic<bool> use_zmq_stream{false};
+     
+     /// Reusable sliding-window merger that handles frame alignment, gap
+     /// detection, and catch-up logic for streamed motion data.
+@@ -124,6 +126,37 @@
+ 
+     static constexpr std::string_view LOCALHOST = "localhost";
+ 
++    // Guards both callback data and the control thread's reads of cached tokens.
++    cart78::TokenLease cart78_lease_;
++    std::recursive_mutex cart78_transition_mutex_;
++    int cart78_reference_index_ = -1;
++
++    bool HasExternalTokenState() const override {
++        return cart78_lease_.usable(cart78::now_ns()) && InputInterface::HasExternalTokenState();
++    }
++    std::pair<bool, std::vector<double>> GetExternalTokenState() const override {
++        if (!cart78_lease_.usable(cart78::now_ns())) return {false, {}};
++        return InputInterface::GetExternalTokenState();
++    }
++
++    // Same normal stream-disable/reference-frame-0 semantics as Enter, never torque-off.
++    // Called by BOTH input and control threads so a stalled input thread cannot keep a lease alive.
++    bool EnforceCart78LeasePause(MotionDataReader& reader,
++        std::shared_ptr<const MotionSequence>& motion, int& frame,
++        OperatorState& op, bool& heading, std::mutex& motion_mutex) {
++        std::lock_guard<std::recursive_mutex> transition(cart78_transition_mutex_);
++        if (cart78_reference_index_ < 0) cart78_reference_index_ = reader.current_motion_index_;
++        std::string reason;
++        if (!cart78_lease_.poll_fault(cart78::now_ns(), reason)) return false;
++        reader.current_motion_index_ = cart78_reference_index_;
++        DisableZmqAndReset(reader, motion, frame, op, heading, motion_mutex,
++                           std::string("CART78 LEASE: ") + reason);
++        ResetStreamedMotion();
++        { std::lock_guard<std::mutex> lock(data_mutex_); has_new_data_ = false; buffered_buffers_.clear(); }
++        // Keep the last valid hand targets. No automatic release/close command is introduced.
++        return true;
++    }
++
+     bool ContinuousHeadingUpdate() const override { return !use_zmq_stream; }
+ 
+     ZMQEndpointInterface(
+@@ -210,13 +243,13 @@
+         while (ReadStdinChar(ch)) {
+             switch (ch) {
+                 case 'p':
+-                case 'P': motion_prev = true; break;
++                case 'P': break; // cart78: pinned paused reference
+                 case 'n':
+-                case 'N': motion_next = true; break;
++                case 'N': break; // cart78: pinned paused reference
+                 case 't':
+-                case 'T': play_motion = true; break;
++                case 'T': break; // cart78: never play the reference trajectory
+                 case 'r':
+-                case 'R': motion_restart = true; break;
++                case 'R': break; // cart78: reference stays paused
+                 case ']': start_control = true; break;
+                 case 'o':
+                 case 'O': stop_control = true; break;
+@@ -249,6 +282,7 @@
+         std::cerr << "✗✗✗ This is not allowed. Exiting ZMQ streaming mode for safety." << std::endl;
+ 
+         use_zmq_stream = false;
++        cart78_lease_.disarm();
+ 
+         {
+             std::lock_guard<std::mutex> lock(current_motion_mutex);
+@@ -281,10 +315,25 @@
+                      DataBuffer<MovementState>& movement_state_buffer,
+                      std::mutex& current_motion_mutex,
+                      bool& report_temperature) override {
+-        
++        std::lock_guard<std::recursive_mutex> transition(cart78_transition_mutex_);
++        if (EnforceCart78LeasePause(motion_reader, current_motion, current_frame,
++                                   operator_state, reinitialize_heading, current_motion_mutex)) {
++            movement_state_buffer.SetData(MovementState(static_cast<int>(LocomotionMode::IDLE),
++                {0.0f,0.0f,0.0f}, {1.0f,0.0f,0.0f}, -1.0f,-1.0f));
++            if (has_planner) { planner_state.enabled=false; planner_state.initialized=false; }
++        }
++        if (toggle_zmq_mode && !use_zmq_stream) {
++            if (!cart78_lease_.arm(cart78::now_ns())) {
++                std::cerr << "CART78: fresh enabled matching lease required before Enter can arm streaming" << std::endl;
++                toggle_zmq_mode=false;
++            }
++        } else if (toggle_zmq_mode && use_zmq_stream) {
++            cart78_lease_.disarm();
++        }
+         // Handle safety reset from interface manager
+         if (trigger_safety_reset) {
+             trigger_safety_reset = false;
++            cart78_lease_.disarm();
+             
+             movement_state_buffer.SetData(MovementState(static_cast<int>(LocomotionMode::IDLE), {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, -1.0f, -1.0f));
+             {
+@@ -1814,6 +1863,12 @@
+         
+         std::lock_guard<std::mutex> lock(data_mutex_);
+         
++        const auto packet = cart78::decode_packet(hdr, bufs);
++        const auto decision = cart78_lease_.observe(packet, cart78::now_ns());
++        if (decision != cart78::Receive::Buffer) {
++            if (decision == cart78::Receive::Fault) { has_new_data_=false; buffered_buffers_.clear(); }
++            return; // Replay/wrong instance never refresh the lease or replace newer buffered data.
++        }
+         // Print message received info
+         std::cout << "[ZMQEndpointInterface] Received ZMQ message - topic: '" << topic 
+                   << "', protocol_version: " << hdr.version 
+--- a/gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/src/g1_deploy_onnx_ref.cpp
++++ b/gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/src/g1_deploy_onnx_ref.cpp
+@@ -1,3 +1,8 @@
++#include <sys/stat.h>
++#include <unistd.h>
++#include <fstream>
++#include <nlohmann/json.hpp>
++#include "input_interface/cart78_token_lease.hpp"
+ /**
+  * @file g1_deploy_onnx_ref.cpp
+  * @brief Main application: deploys an RL locomotion policy on the Unitree G1 robot.
+@@ -2490,6 +2495,18 @@
+       robot_config["planner_fp16"] = planner_fp16;
+       robot_config["motor_kp_scale"] = format_motor_gain_scales(motor_gain_scales_.kp);
+       robot_config["motor_kd_scale"] = format_motor_gain_scales(motor_gain_scales_.kd);
++      const bool cart78_guard_active = input_type == "zmq";
++      if (cart78_guard_active && (!encoder_engine_ || initial_encoder_mode_ < 0 || token_state_data_.size()!=64))
++        throw std::runtime_error("CART78 requires local encoder and 64D config for reference fallback");
++      robot_config["controller_guard_protocol"] = std::string(cart78::kProtocol);
++      robot_config["controller_guard_active"] = cart78_guard_active;
++      robot_config["controller_guard_instance"] = std::to_string(cart78::controller_instance());
++      robot_config["controller_guard_timeout_ms"] = cart78::timeout_ms();
++      if (cart78_guard_active) {
++        robot_config["controller_encoder_sha256"] = cart78::verified_hash_env("CART78_ENCODER_SHA256");
++        robot_config["controller_decoder_sha256"] = cart78::verified_hash_env("CART78_DECODER_SHA256");
++        robot_config["controller_observation_config_sha256"] = cart78::verified_hash_env("CART78_OBSERVATION_SHA256");
++      }
+ 
+       // Initialize state logger with complete robot configuration
+       try {
+@@ -3037,6 +3054,14 @@
+      *    initial_encoder_mode_ (-1 = stop, 0+ = fall back to local encoder).
+      */
+     bool GatherInputInterfaceData() {
++      if (auto* guarded = dynamic_cast<ZMQEndpointInterface*>(input_interface_.get())) {
++        if (guarded->EnforceCart78LeasePause(motion_reader_, current_motion_, current_frame_,
++                                           operator_state, reinitialize_heading_, current_motion_mutex_)) {
++          movement_state_buffer_.SetData(MovementState(static_cast<int>(LocomotionMode::IDLE),
++              {0.0f,0.0f,0.0f}, {1.0f,0.0f,0.0f}, -1.0f,-1.0f));
++          if (planner_) { planner_->planner_state_.enabled=false; planner_->planner_state_.initialized=false; }
++        }
++      }
+       // Snapshot input interface data into buffers before gathering observations
+       // This ensures observations, logging, and output all use the same data
+       // some of the data will be overwritten by the motion dataset if we are not using the buffered interface data
+@@ -4214,6 +4239,32 @@
+  * The main loop sleeps until the operator issues a stop signal or ROS2 shuts down.
+  */
+ int main(int argc, char const* argv[]) {
++  // Private argv expansion preserves argument-storage lifetime until main exits.
++  std::vector<std::string> cart78_arg_storage;
++  std::vector<const char*> cart78_argv;
++  if (argc == 3 && std::string(argv[1]) == "--args-file") {
++    try {
++      struct stat st{};
++      if (lstat(argv[2], &st) != 0 || !S_ISREG(st.st_mode) || st.st_uid != geteuid() ||
++          (st.st_mode & 0077) != 0 || st.st_size <= 0 || st.st_size > 65536)
++        throw std::runtime_error("args-file must be a current-user private regular file <=64KiB");
++      std::ifstream input(argv[2]); nlohmann::json values; input >> values;
++      if (!values.is_array() || values.size() > 128) throw std::runtime_error("args-file must contain <=128 strings");
++      cart78_arg_storage.emplace_back(argv[0]);
++      for (const auto& value : values) {
++        if (!value.is_string()) throw std::runtime_error("non-string argument");
++        std::string v=value.get<std::string>();
++        if (v.size()>4096 || v.find('\0')!=std::string::npos || v=="--args-file") throw std::runtime_error("invalid argument");
++        cart78_arg_storage.emplace_back(std::move(v));
++      }
++      for (const auto& value:cart78_arg_storage) cart78_argv.push_back(value.c_str());
++      cart78_argv.push_back(nullptr); argc=static_cast<int>(cart78_arg_storage.size()); argv=cart78_argv.data();
++    } catch (const std::exception& e) { std::cerr << "CART78 args-file rejected: " << e.what() << std::endl; return 2; }
++  }
++  if (argc == 2 && std::string(argv[1]) == "--psi0-lease-info") {
++    std::cout << "{\"protocol\":\"cart78.token_lease.v1\",\"build_marker\":\"CART78_TOKEN_LEASE_GUARD_V1\",\"default_timeout_ms\":250,\"pause_action\":\"disable_stream_reference_frame0_keep_hands\",\"hardware_initialized\":false}" << std::endl;
++    return 0;
++  }
+   std::cout << "[DEBUG] Program starting..." << std::endl;
+   if (argc < 4) {
+     std::cout << "Usage: " << argv[0] << " <network_interface> <policy_file> <motion_data_path> [OPTIONS]"
+--- /dev/null
++++ b/gear_sonic_deploy/src/g1/g1_deploy_onnx_ref/include/input_interface/cart78_token_lease.hpp
+@@ -0,0 +1,142 @@
++#pragma once
++#if defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__ > 0
++#error "cart78 token guard requires -fno-finite-math-only so NaN/Inf checks cannot be optimized away"
++#endif
++// Dedicated cart78 token lease. Pure C++ standard-library code; no hardware side effects.
++#include <array>
++#include <chrono>
++#include <cmath>
++#include <cstdint>
++#include <cstdlib>
++#include <cstring>
++#include <mutex>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace cart78 {
++inline constexpr const char* kProtocol = "cart78.token_lease.v1";
++inline constexpr const char* kBuildMarker = "CART78_TOKEN_LEASE_GUARD_V1";
++inline int64_t now_ns() {
++  return std::chrono::duration_cast<std::chrono::nanoseconds>(
++      std::chrono::steady_clock::now().time_since_epoch()).count();
++}
++inline int64_t controller_instance() { static const int64_t value = now_ns(); return value; }
++inline int timeout_ms() {
++  static const int value = [] {
++    const char* raw = std::getenv("CART78_LEASE_TIMEOUT_MS");
++    const std::string s = raw ? raw : "250";
++    size_t used = 0; int v = std::stoi(s, &used);
++    if (used != s.size() || v < 100 || v > 1000) throw std::runtime_error("lease timeout must be 100..1000 ms");
++    return v;
++  }();
++  return value;
++}
++inline std::string verified_hash_env(const char* key) {
++  const char* raw = std::getenv(key); std::string s = raw ? raw : "";
++  if (s.size() != 64 || s.find_first_not_of("0123456789abcdef") != std::string::npos)
++    throw std::runtime_error(std::string("missing launcher-verified asset hash: ") + key);
++  return s;
++}
++struct Packet {
++  bool valid = false, enable = false, stop = false;
++  int64_t instance = 0, session = 0, sequence = -1;
++  std::string reason = "invalid_packet";
++};
++
++// Header/Buffer templates let the exact parser be exercised without Unitree/ZMQ libraries.
++template<class Header, class Buffers>
++Packet decode_packet(const Header& h, const Buffers& bufs) {
++  Packet p;
++  if (h.version != 4 || h.count != 1 || (h.endian != "le" && !h.endian.empty()) ||
++      h.fields.size() != bufs.size() || h.fields.size() < 5 || h.fields.size() > 16) return p;
++  const uint16_t endian_probe = 1;
++  if (*reinterpret_cast<const uint8_t*>(&endian_probe) != 1) { p.reason="host_not_little_endian"; return p; }
++  for (size_t i=0;i<h.fields.size();++i) for (size_t j=0;j<i;++j)
++    if (h.fields[i].name == h.fields[j].name) { p.reason="duplicate_field"; return p; }
++  auto find = [&](const char* name) -> int {
++    for (size_t i=0;i<h.fields.size();++i) if (h.fields[i].name == name) return static_cast<int>(i);
++    return -1;
++  };
++  auto scalar = [&](const char* name, const char* dtype, void* out, size_t bytes) -> bool {
++    const int i=find(name); if(i<0) return false;
++    const auto& f=h.fields[static_cast<size_t>(i)]; const auto& b=bufs[static_cast<size_t>(i)];
++    if(f.dtype!=dtype || f.shape.size()!=1 || f.shape[0]!=1 || b.size!=bytes || !b.data) return false;
++    std::memcpy(out,b.data,bytes); return true;
++  };
++  uint8_t en=0, st=0;
++  if(!scalar("control_enable","u8",&en,1) || !scalar("control_stop","u8",&st,1) || en>1 || st>1 ||
++     !scalar("controller_instance","i64",&p.instance,8) || !scalar("client_session","i64",&p.session,8) ||
++     !scalar("action_seq","i64",&p.sequence,8) || p.instance<=0 || p.session<=0 || p.sequence<0) return p;
++  p.enable=en; p.stop=st;
++  if(p.stop || !p.enable) { p.valid=true; p.reason=p.stop?"explicit_stop":"control_disabled"; return p; }
++  const std::array<float,7> lmin={-1.05f,-0.724f,0,-1.57f,-1.75f,-1.57f,-1.75f};
++  const std::array<float,7> lmax={1.05f,1.05f,1.75f,0,0,0,0};
++  const std::array<float,7> rmin={-1.05f,-1.05f,-1.75f,0,0,0,0};
++  const std::array<float,7> rmax={1.05f,0.742f,0,1.57f,1.75f,1.57f,1.75f};
++  for (const char* name : {"token_state","left_hand_joints","right_hand_joints"}) {
++    const int i=find(name); if(i<0) return p;
++    const bool token=std::string(name)=="token_state", left=std::string(name)=="left_hand_joints";
++    const size_t width=token?64:7; const auto& f=h.fields[static_cast<size_t>(i)];const auto& b=bufs[static_cast<size_t>(i)];
++    if(f.dtype!="f32" || f.shape.size()!=2 || f.shape[0]!=1 || f.shape[1]!=width || b.size!=4*width || !b.data) return p;
++    for(size_t j=0;j<width;++j) {
++      const auto* raw=static_cast<const uint8_t*>(b.data)+4*j;
++      const uint32_t bits=uint32_t(raw[0])|(uint32_t(raw[1])<<8)|(uint32_t(raw[2])<<16)|(uint32_t(raw[3])<<24);
++      // Reject wire NaN/Inf before any floating-point operation (-ffast-math safe).
++      if((bits & 0x7f800000u)==0x7f800000u) {p.reason="nonfinite_action";return p;}
++      float v; std::memcpy(&v,&bits,4);
++      if(token) {
++        if(v < -0.625001f || v > 0.625001f || std::fabs(v*16.0f-std::round(v*16.0f))>1e-5f) {p.reason="invalid_fsq_token";return p;}
++      } else {
++        const auto& lo=left?lmin:rmin; const auto& hi=left?lmax:rmax;
++        if(v<lo[j]-1e-5f || v>hi[j]+1e-5f) {p.reason="hand_out_of_controller_bounds";return p;}
++      }
++    }
++  }
++  p.valid=true;p.reason="valid_action";return p;
++}
++
++enum class Receive { Buffer, Ignore, Fault };
++class TokenLease {
++ public:
++  TokenLease(int64_t instance=controller_instance(), int timeout=timeout_ms())
++      : instance_(instance), ttl_ns_(static_cast<int64_t>(timeout)*1000000) {
++    if(instance<=0 || timeout<100 || timeout>1000) throw std::invalid_argument("bad lease configuration");
++  }
++  Receive observe(const Packet& p,int64_t now) {
++    std::lock_guard<std::mutex> lock(mu_);
++    if(armed_ && now-last_rx_>ttl_ns_) { trip_locked("token_lease_expired"); return Receive::Fault; }
++    if(!p.valid) { trip_locked(p.reason); return Receive::Fault; }
++    if(p.instance!=instance_) return Receive::Ignore; // Never renew another controller's lease.
++    if(p.stop || !p.enable) {trip_locked(p.stop?"explicit_stop":"control_disabled");return Receive::Fault;}
++    if(armed_ && p.session!=active_session_) {trip_locked("client_session_changed");return Receive::Fault;}
++    if(p.session==offered_session_ && p.sequence<=offered_seq_) return Receive::Ignore;
++    offered_session_=p.session;offered_seq_=p.sequence;last_rx_=now;candidate_=true;
++    return Receive::Buffer;
++  }
++  bool arm(int64_t now) {
++    std::lock_guard<std::mutex> lock(mu_);
++    if(!candidate_ || now<last_rx_ || now-last_rx_>ttl_ns_) return false;
++    active_session_=offered_session_;armed_=true;fault_pending_=false;reason_.clear();return true;
++  }
++  void disarm() {std::lock_guard<std::mutex> lock(mu_);armed_=false;candidate_=false;fault_pending_=false;reason_.clear();}
++  bool usable(int64_t now) const {
++    std::lock_guard<std::mutex> lock(mu_);
++    return armed_ && candidate_ && now>=last_rx_ && now-last_rx_<=ttl_ns_;
++  }
++  bool poll_fault(int64_t now,std::string& reason) {
++    std::lock_guard<std::mutex> lock(mu_);
++    if(armed_ && (now<last_rx_ || now-last_rx_>ttl_ns_))trip_locked("token_lease_expired");
++    if(!fault_pending_)return false;
++    reason=reason_;fault_pending_=false;return true;
++  }
++  int64_t last_receive_ns() const {std::lock_guard<std::mutex> lock(mu_);return last_rx_;}
++ private:
++  void trip_locked(const std::string& why){armed_=false;candidate_=false;fault_pending_=true;reason_=why;}
++  const int64_t instance_,ttl_ns_;
++  mutable std::mutex mu_;
++  bool armed_=false,candidate_=false,fault_pending_=false;
++  int64_t active_session_=0,offered_session_=0,offered_seq_=-1,last_rx_=0;
++  std::string reason_;
++};
++} // namespace cart78

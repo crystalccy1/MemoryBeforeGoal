@@ -30,7 +30,7 @@
 
 ## 📢 News
 
-- **2026-11-04** — Released the inference code for HuMeGo memory tasks and baseline tasks.
+- **2026-11-04** — Released the inference and training code for HuMeGo memory tasks and baseline tasks, and the deployment code for the real Unitree G1 ([`real/`](real/README.md)).
 - **2026-11-03** — Released 51 checkpoints at [`ChenyuanC/MemorybeforeGoal`](https://huggingface.co/ChenyuanC/MemorybeforeGoal): WholeBodyMem and the Psi0 baseline of the paper's tables.
 - **2026-10-23** — Released the [HuMeGo datasets](https://huggingface.co/collections/ChenyuanC/humego-6ada5cbea74d4cc678c91c68): six simulated tasks with their test scenes and six real-world tasks.
 
@@ -39,9 +39,11 @@
 - [Quick Start](#quick-start)
   - [Checkpoints](#checkpoints)
   - [Policy server in simulation](#policy-server)
+- [Training](#training)
 - [HuMeGo Benchmark](#humego)
   - [Simulation tasks](#humego-sim)
   - [Real-world tasks](#humego-real)
+- [Real Deployment](#real-g1)
 - [License](#license)
 - [Citation](#citation)
 
@@ -112,6 +114,49 @@ The message format is in [`src/wholebodymem/server.py`](src/wholebodymem/server.
 
 </details>
 
+<a id="training"></a>
+## 🏋️ Training
+
+```bash
+pip install -e ".[train]"
+hf download USC-PSI-Lab/psi-model --local-dir checkpoints \
+    --include "psi0/pre.fast.1by1.2601091803.ckpt.ego200k.he30k/*" \
+              "psi0/postpre.1by1.pad36.2601131206.ckpt.he30k/*"
+
+# memory task (two stages)
+torchrun --standalone --nproc_per_node 8 scripts/train.py configs/train/memory/LitLamp_stage1.json
+torchrun --standalone --nproc_per_node 8 scripts/train.py configs/train/memory/LitLamp.json \
+    model.warm_start_checkpoint=runs/memory/LitLamp-stage1/finetune_keyframe_native_object/<run>/checkpoints/ckpt_40000
+
+# SIMPLE task
+torchrun --standalone --nproc_per_node 4 scripts/train.py configs/train/simple/T1_XMovePick.json
+
+# real robot, in the environment of real/source (Python 3.11, pip install -e real/source)
+python real/source/scripts/train.py configs/train/real/TrashBag.json
+```
+
+<details>
+<summary><b>Details</b></summary>
+
+<br>
+
+```text
+configs/train/memory/<Task>_stage1.json   memory tasks, stage 1
+configs/train/memory/<Task>.json          memory tasks, stage 2 = wholebodymem/memory/<Task>
+configs/train/simple/<Task>.json          wholebodymem/simple/<Task>
+configs/train/real/<Task>.json            wholebodymem/real/<Task>
+configs/train/labels/<Task>.json          decision labels (FlashPad, HideMug, LitLamp, ShellGame)
+```
+
+- **Data**: the [HuMeGo datasets](https://huggingface.co/collections/ChenyuanC/humego-6ada5cbea74d4cc678c91c68) for the
+  memory and real-robot tasks and [USC-PSI-Lab/psi-data](https://huggingface.co/datasets/USC-PSI-Lab/psi-data) for
+  SIMPLE, under `data/<dataset>` (the name in the config's `data.train_repo_ids`), and each task's precomputed memory
+  inputs under `memory/<suite>/<Task>/`.
+- **Overrides**: any field with `key=value` after the config, e.g. `data.root_dir=/datasets`.
+- **Checkpoints**: `<train.output_dir>/<train.name>/<run>/checkpoints/ckpt_<step>/`.
+
+</details>
+
 <a id="humego"></a>
 ## 📦 HuMeGo Benchmark
 
@@ -145,6 +190,19 @@ All datasets are in [LeRobot](https://github.com/huggingface/lerobot) v2.1 forma
 | Café C: where did the cola stop first | what + where + when | [HuMeGo-Real-CafeC](https://huggingface.co/datasets/ChenyuanC/HuMeGo-Real-CafeC) |
 | Chip-cart | progress | [HuMeGo-Real-ChipCart](https://huggingface.co/datasets/ChenyuanC/HuMeGo-Real-ChipCart) |
 
+<a id="real-g1"></a>
+## 🤖 Real Deployment
+
+[`real/`](real/README.md) holds the deployment code: the policy server with the online SAM 3 memory, the robot-side
+client and the patch for the SONIC whole-body controller.
+
+```bash
+python real/deploy/setup_env.py server --python /path/to/python3.11 --venv real/deploy/.venv-server
+real/deploy/.venv-server/bin/python real/prepare_bundle.py --task TrashBag      # -> real/bundles/TrashBag
+```
+
+More in [real/README.md](real/README.md).
+
 <a id="license"></a>
 ## 📜 License
 
@@ -154,6 +212,7 @@ All datasets are in [LeRobot](https://github.com/huggingface/lerobot) v2.1 forma
 | Checkpoints | Apache License 2.0 |
 | HuMeGo datasets | CC BY 4.0 |
 | SAM 3 code and weights (not included) | Meta's SAM License |
+| SONIC model weights (not included) | NVIDIA Open Model License |
 
 <a id="citation"></a>
 ## 📖 Citation

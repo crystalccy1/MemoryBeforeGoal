@@ -1,0 +1,5 @@
+numpy>=1.24,<3
+Pillow>=10,<13
+pyzmq>=25,<28
+msgpack>=1.0,<2
+websocket-client>=1.8,<2

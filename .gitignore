@@ -8,3 +8,14 @@ checkpoints/
 weights/
 third_party/
 /data/
+# training inputs and outputs
+/memory/
+/runs/
+
+# real G1: local bundles, downloads, per-task configs, runtime and logs
+real/bundles/
+real/downloads/
+real/deploy/config/*/
+real/deploy/runtime/
+real/deploy/logs/
+real/deploy/evidence/

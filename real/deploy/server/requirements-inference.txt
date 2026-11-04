@@ -1,0 +1,18 @@
+# Install torch2.7.0 and torchvision0.22.0 separately from the correct CUDA index.
+# Default runtime uses SDPA; FlashAttention is optional and deliberately omitted.
+transformers==4.57.1
+diffusers==0.37.0
+accelerate==1.7.0
+safetensors==0.6.2
+qwen-vl-utils==0.0.14
+fastapi==0.119.1
+uvicorn==0.38.0
+websockets==15.0.1
+numpy==1.26.4
+pillow==11.3.0
+pydantic==2.10.6
+tyro==0.9.32
+rich==14.1.0
+einops==0.8.1
+python-dotenv==1.2.1
+av==16.0.1

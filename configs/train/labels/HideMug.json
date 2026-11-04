@@ -1,0 +1,507 @@
+{
+  "schema": "psi0-decision-labels/v1",
+  "task": "SimFactoryHideMug2T-v0",
+  "num_classes": 3,
+  "episodes": {
+    "0": {
+      "answer": 1,
+      "start": 580,
+      "length": 1490
+    },
+    "1": {
+      "answer": 1,
+      "start": 579,
+      "length": 1466
+    },
+    "10": {
+      "answer": 1,
+      "start": 579,
+      "length": 1468
+    },
+    "11": {
+      "answer": 1,
+      "start": 579,
+      "length": 1349
+    },
+    "12": {
+      "answer": 1,
+      "start": 579,
+      "length": 1490
+    },
+    "13": {
+      "answer": 1,
+      "start": 579,
+      "length": 1381
+    },
+    "14": {
+      "answer": 1,
+      "start": 578,
+      "length": 1420
+    },
+    "15": {
+      "answer": 1,
+      "start": 579,
+      "length": 1383
+    },
+    "16": {
+      "answer": 1,
+      "start": 582,
+      "length": 1402
+    },
+    "17": {
+      "answer": 1,
+      "start": 579,
+      "length": 1345
+    },
+    "18": {
+      "answer": 1,
+      "start": 579,
+      "length": 1481
+    },
+    "19": {
+      "answer": 1,
+      "start": 580,
+      "length": 1357
+    },
+    "2": {
+      "answer": 1,
+      "start": 579,
+      "length": 1467
+    },
+    "20": {
+      "answer": 1,
+      "start": 580,
+      "length": 1408
+    },
+    "21": {
+      "answer": 1,
+      "start": 580,
+      "length": 1489
+    },
+    "22": {
+      "answer": 1,
+      "start": 580,
+      "length": 1345
+    },
+    "23": {
+      "answer": 1,
+      "start": 579,
+      "length": 1358
+    },
+    "24": {
+      "answer": 1,
+      "start": 583,
+      "length": 1490
+    },
+    "25": {
+      "answer": 1,
+      "start": 579,
+      "length": 1355
+    },
+    "26": {
+      "answer": 1,
+      "start": 582,
+      "length": 1353
+    },
+    "27": {
+      "answer": 1,
+      "start": 582,
+      "length": 1357
+    },
+    "28": {
+      "answer": 1,
+      "start": 581,
+      "length": 1490
+    },
+    "29": {
+      "answer": 1,
+      "start": 579,
+      "length": 1353
+    },
+    "3": {
+      "answer": 1,
+      "start": 580,
+      "length": 1390
+    },
+    "30": {
+      "answer": 1,
+      "start": 579,
+      "length": 1417
+    },
+    "31": {
+      "answer": 1,
+      "start": 579,
+      "length": 1424
+    },
+    "32": {
+      "answer": 1,
+      "start": 579,
+      "length": 1388
+    },
+    "33": {
+      "answer": 1,
+      "start": 579,
+      "length": 1486
+    },
+    "34": {
+      "answer": 2,
+      "start": 578,
+      "length": 1421
+    },
+    "35": {
+      "answer": 2,
+      "start": 578,
+      "length": 1458
+    },
+    "36": {
+      "answer": 2,
+      "start": 579,
+      "length": 1239
+    },
+    "37": {
+      "answer": 2,
+      "start": 579,
+      "length": 1306
+    },
+    "38": {
+      "answer": 2,
+      "start": 579,
+      "length": 1447
+    },
+    "39": {
+      "answer": 2,
+      "start": 582,
+      "length": 1303
+    },
+    "4": {
+      "answer": 1,
+      "start": 580,
+      "length": 1354
+    },
+    "40": {
+      "answer": 2,
+      "start": 579,
+      "length": 1302
+    },
+    "41": {
+      "answer": 2,
+      "start": 581,
+      "length": 1245
+    },
+    "42": {
+      "answer": 2,
+      "start": 579,
+      "length": 1375
+    },
+    "43": {
+      "answer": 2,
+      "start": 579,
+      "length": 1246
+    },
+    "44": {
+      "answer": 2,
+      "start": 579,
+      "length": 1413
+    },
+    "45": {
+      "answer": 2,
+      "start": 578,
+      "length": 1277
+    },
+    "46": {
+      "answer": 2,
+      "start": 579,
+      "length": 1456
+    },
+    "47": {
+      "answer": 2,
+      "start": 586,
+      "length": 1246
+    },
+    "48": {
+      "answer": 2,
+      "start": 579,
+      "length": 1432
+    },
+    "49": {
+      "answer": 2,
+      "start": 579,
+      "length": 1422
+    },
+    "5": {
+      "answer": 1,
+      "start": 579,
+      "length": 1406
+    },
+    "50": {
+      "answer": 2,
+      "start": 579,
+      "length": 1339
+    },
+    "51": {
+      "answer": 2,
+      "start": 578,
+      "length": 1450
+    },
+    "52": {
+      "answer": 2,
+      "start": 581,
+      "length": 1308
+    },
+    "53": {
+      "answer": 2,
+      "start": 580,
+      "length": 1249
+    },
+    "54": {
+      "answer": 2,
+      "start": 579,
+      "length": 1266
+    },
+    "55": {
+      "answer": 2,
+      "start": 578,
+      "length": 1235
+    },
+    "56": {
+      "answer": 2,
+      "start": 580,
+      "length": 1373
+    },
+    "57": {
+      "answer": 2,
+      "start": 579,
+      "length": 1270
+    },
+    "58": {
+      "answer": 2,
+      "start": 579,
+      "length": 1311
+    },
+    "59": {
+      "answer": 2,
+      "start": 579,
+      "length": 1441
+    },
+    "6": {
+      "answer": 1,
+      "start": 579,
+      "length": 1396
+    },
+    "60": {
+      "answer": 2,
+      "start": 580,
+      "length": 1264
+    },
+    "61": {
+      "answer": 2,
+      "start": 579,
+      "length": 1271
+    },
+    "62": {
+      "answer": 2,
+      "start": 579,
+      "length": 1422
+    },
+    "63": {
+      "answer": 2,
+      "start": 580,
+      "length": 1315
+    },
+    "64": {
+      "answer": 2,
+      "start": 580,
+      "length": 1246
+    },
+    "65": {
+      "answer": 2,
+      "start": 579,
+      "length": 1415
+    },
+    "66": {
+      "answer": 2,
+      "start": 579,
+      "length": 1268
+    },
+    "67": {
+      "answer": 3,
+      "start": 579,
+      "length": 1199
+    },
+    "68": {
+      "answer": 3,
+      "start": 579,
+      "length": 1038
+    },
+    "69": {
+      "answer": 3,
+      "start": 580,
+      "length": 1039
+    },
+    "7": {
+      "answer": 1,
+      "start": 579,
+      "length": 1490
+    },
+    "70": {
+      "answer": 3,
+      "start": 580,
+      "length": 1040
+    },
+    "71": {
+      "answer": 3,
+      "start": 580,
+      "length": 1201
+    },
+    "72": {
+      "answer": 3,
+      "start": 579,
+      "length": 1268
+    },
+    "73": {
+      "answer": 3,
+      "start": 579,
+      "length": 1160
+    },
+    "74": {
+      "answer": 3,
+      "start": 579,
+      "length": 1037
+    },
+    "75": {
+      "answer": 3,
+      "start": 580,
+      "length": 1047
+    },
+    "76": {
+      "answer": 3,
+      "start": 579,
+      "length": 1263
+    },
+    "77": {
+      "answer": 3,
+      "start": 580,
+      "length": 1201
+    },
+    "78": {
+      "answer": 3,
+      "start": 579,
+      "length": 1046
+    },
+    "79": {
+      "answer": 3,
+      "start": 585,
+      "length": 1052
+    },
+    "8": {
+      "answer": 1,
+      "start": 578,
+      "length": 1304
+    },
+    "80": {
+      "answer": 3,
+      "start": 579,
+      "length": 1041
+    },
+    "81": {
+      "answer": 3,
+      "start": 580,
+      "length": 1045
+    },
+    "82": {
+      "answer": 3,
+      "start": 581,
+      "length": 1159
+    },
+    "83": {
+      "answer": 3,
+      "start": 580,
+      "length": 1366
+    },
+    "84": {
+      "answer": 3,
+      "start": 580,
+      "length": 1190
+    },
+    "85": {
+      "answer": 3,
+      "start": 579,
+      "length": 1045
+    },
+    "86": {
+      "answer": 3,
+      "start": 581,
+      "length": 1043
+    },
+    "87": {
+      "answer": 3,
+      "start": 579,
+      "length": 1043
+    },
+    "88": {
+      "answer": 3,
+      "start": 579,
+      "length": 1187
+    },
+    "89": {
+      "answer": 3,
+      "start": 579,
+      "length": 1135
+    },
+    "9": {
+      "answer": 1,
+      "start": 579,
+      "length": 1343
+    },
+    "90": {
+      "answer": 3,
+      "start": 580,
+      "length": 1044
+    },
+    "91": {
+      "answer": 3,
+      "start": 579,
+      "length": 1187
+    },
+    "92": {
+      "answer": 3,
+      "start": 579,
+      "length": 1142
+    },
+    "93": {
+      "answer": 3,
+      "start": 579,
+      "length": 1232
+    },
+    "94": {
+      "answer": 3,
+      "start": 582,
+      "length": 1195
+    },
+    "95": {
+      "answer": 3,
+      "start": 579,
+      "length": 1294
+    },
+    "96": {
+      "answer": 3,
+      "start": 580,
+      "length": 1272
+    },
+    "97": {
+      "answer": 3,
+      "start": 581,
+      "length": 1194
+    },
+    "98": {
+      "answer": 3,
+      "start": 578,
+      "length": 1226
+    },
+    "99": {
+      "answer": 3,
+      "start": 579,
+      "length": 1188
+    }
+  }
+}

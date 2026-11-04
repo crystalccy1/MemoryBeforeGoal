@@ -1,0 +1,12 @@
+# Dependencies of SAM 3 (facebookresearch/sam3 @ 2345a4ad), which the server runs in-process for the online object memory.
+# The SAM 3 code itself is not installed: the server imports it from <sam3-root>/vendor/sam3-2345a4ad.
+timm>=1.0.17
+tqdm
+ftfy==6.1.1
+regex
+iopath>=0.1.10
+typing_extensions
+huggingface_hub
+pycocotools   # imported by sam3 at import time (listed under its dev extras)
+opencv-python-headless==4.11.0.86   # cv2: mask handling and the start-up warm-up (4.12 needs numpy 2)
+scipy==1.15.3   # scipy.optimize: detection-track association in SAM 3 tracking

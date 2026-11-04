@@ -8,10 +8,31 @@ listed below with its own licence. Everything not listed below is our own code u
 --------------------------------------
 
 src/psi/  (Psi0, https://github.com/physical-superintelligence-lab/Psi0, arXiv:2603.12263;
-           Copyright 2026 PSI-lab, USC; Apache License 2.0, see licenses/Psi0-LICENSE.txt)
-  23 files come from Psi0. 16 of them were modified and carry the line "Derived from Psi0 ... and modified" at the top;
-  the other 7 are unchanged. The remaining 30 files (frame sampling, native keyframe memory, SAM 3 object memory,
-  flow-matching utilities and their configs) are our own code.
+           Copyright 2026 PSI-lab, USC; Apache License 2.0, see real/deploy/licenses/Psi0-LICENSE.txt)
+  24 files come from Psi0. 17 of them were modified and carry the line "Derived from Psi0 ... and modified" at the top;
+  the other 7 are unchanged. The remaining 34 files (frame sampling, native keyframe memory, SAM 3 object memory,
+  flow-matching utilities, their trainers and configs) are our own code.
+
+scripts/train.py  (Psi0 scripts/train.py; same copyright and licence) was modified and carries the same line at the top.
+
+real/source/  (Psi0 at commit a7db4fbb9e3ed55bb46978e890224fa3ff723ad9; same copyright and licence as above)
+  The Psi0 code the real-robot checkpoints were trained with. scripts/train.py, src/psi/trainers/sonic.py and
+  src/psi/utils/utils.py were modified and carry the same line at the top; the six object-memory files
+  (src/psi/config/model_psi0_objmem.py, src/psi/config/train/finetune_real_psi0_objmem_config.py,
+  src/psi/data/objmem_bank.py, src/psi/models/keyframe_native_qwen.py, src/psi/models/psi0_objmem.py,
+  src/psi/trainers/sonic_objmem.py) are our own code. Psi0's EgoDex data loader (src/psi/data/egodex/: code by Apple
+  Inc. under Apple's EgoDex licence, and code adapted from H-RDT under the Mozilla Public License 2.0) is not included;
+  it is used only for Psi0 pre-training and not by this release.
+
+real/gr00t/ and real/deploy/controller/cart78_controller.patch
+  (GR00T-WholeBodyControl, https://github.com/physical-superintelligence-lab/GR00T-WholeBodyControl, a fork of
+  https://github.com/NVlabs/GR00T-WholeBodyControl; Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES; source code
+  under the Apache License 2.0, see real/deploy/licenses/SONIC-LICENSE.txt)
+  real/gr00t/GR00T-WBC_submodule.diff modifies 14 files of commit d40376994ff094787591ab76a691c50b8e131786, and
+  cart78_controller.patch changes two of them further; both are distributed as patches, not as copies of the files.
+  real/gr00t/untracked/gear_sonic_deploy/policy/sonic_v1_1/observation_config.yaml is a modified version of
+  gear_sonic_deploy/policy/release/observation_config.yaml of that repository. The other files in real/gr00t/untracked/
+  and real/deploy/controller/include/cart78_token_lease.hpp are our own code. No NVIDIA model weights are included.
 
 2. Not included (obtained by the user under their own terms)
 ------------------------------------------------------------
@@ -19,7 +40,9 @@ src/psi/  (Psi0, https://github.com/physical-superintelligence-lab/Psi0, arXiv:2
   - SAM 3 code (https://github.com/facebookresearch/sam3) and weights (facebook/sam3 on the Hugging Face Hub, gated),
     under Meta's SAM License. That licence restricts some uses (for example trade-controlled, military and weapons
     uses) and asks publications that use SAM 3 to acknowledge it. Our code only calls the SAM 3 API.
-  - Python packages installed from PyPI, each under its own licence.
+  - GR00T-WholeBodyControl, the SONIC model files (nvidia/GEAR-SONIC, NVIDIA Open Model License), TensorRT and the
+    Unitree SDK (real robot only).
+  - Python packages installed from PyPI or Git by the setup scripts, each under its own licence.
 
 3. Checkpoints (Hugging Face model repository ChenyuanC/MemorybeforeGoal)
 ------------------------------------------------------------------------

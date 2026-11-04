@@ -1,0 +1,6 @@
+.test_venv/
+__pycache__/
+**/__pycache__/
+client-it-*/
+package-server-it-*/
+client_logs/

@@ -1,0 +1,104 @@
+{
+  "_comment": "Real Unitree G1 tasks (paper Table V). checkpoint = folder in the Hugging Face model repository ChenyuanC/MemorybeforeGoal; instruction = the training instruction the client sends; contract = the cart78 contract shared by all tasks (stats_sha256 and memory_spec_sha256 are computed by prepare_bundle.py).",
+  "model_repository": "ChenyuanC/MemorybeforeGoal",
+  "contract": {
+    "action_dim": 78,
+    "action_order": "token64+left_model7+right_model7",
+    "action_tick_hz": 30,
+    "actions_normalized": false,
+    "controller_decoder_sha256": "c7241a123eaa36b5d64bad19540efde93cac1ad443bd4572fd12ca99898118ed",
+    "controller_encoder_sha256": "013ab0287236aa2721e13f1e936d699db982302d0de0bfcdae76d5c3245362d3",
+    "controller_family": "SONIC",
+    "controller_observation_config_sha256": "466d05947c78af6c76388adfb86e3a2a77b2a1d921a64883ed3d085ebf58de1b",
+    "controller_version": "1.0",
+    "horizon": 30,
+    "image_color": "RGB",
+    "image_height": 360,
+    "image_width": 640,
+    "max_delay": 8,
+    "model_resize_hw": [
+      180,
+      320
+    ],
+    "policy_memory": "sam3v2",
+    "protocol": "cart78.v1",
+    "state_dim": 43,
+    "state_order": "model_urdf"
+  },
+  "tasks": {
+    "TrashBag": {
+      "paper_name": "Trash bag",
+      "checkpoint": "wholebodymem/real/TrashBag",
+      "step": 5000,
+      "instruction": "Remember where the trash bags appeared, then pick the cups and place them there.",
+      "sam3_prompts": [
+        "roll",
+        "blue cup",
+        "black tape square"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-TrashBag"
+    },
+    "RememberChip": {
+      "paper_name": "Remember-chip",
+      "checkpoint": "wholebodymem/real/RememberChip",
+      "step": 5000,
+      "instruction": "Someone picks one chip box; the robot remembers which one was picked, then picks that box into the cart next to it and moves the cart.",
+      "sam3_prompts": [
+        "red chip can",
+        "yellow can",
+        "green can",
+        "cart"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-RememberChip"
+    },
+    "CafeA": {
+      "paper_name": "Cafe: first come, first served",
+      "checkpoint": "wholebodymem/real/CafeA",
+      "step": 5000,
+      "instruction": "Serve the cola to the seat that ordered first.",
+      "sam3_prompts": [
+        "pepsi can",
+        "black tape square",
+        "human hand"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-CafeA"
+    },
+    "CafeB": {
+      "paper_name": "Cafe: which seat has the cola",
+      "checkpoint": "wholebodymem/real/CafeB",
+      "step": 5000,
+      "instruction": "Serve the cola to the seat that ordered cola.",
+      "sam3_prompts": [
+        "pepsi can",
+        "green can",
+        "black tape square"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-CafeB"
+    },
+    "CafeC": {
+      "paper_name": "Cafe: where did the cola stop first",
+      "checkpoint": "wholebodymem/real/CafeC",
+      "step": 5000,
+      "instruction": "Serve the cola to the seat where cola was first ordered.",
+      "sam3_prompts": [
+        "pepsi can",
+        "blue can",
+        "human arm"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-CafeC"
+    },
+    "ChipCart": {
+      "paper_name": "Chip-cart",
+      "checkpoint": "wholebodymem/real/ChipCart",
+      "step": 5000,
+      "instruction": "Pick different chip boxes and place them into the cart in order, then move the cart.",
+      "sam3_prompts": [
+        "red chip can",
+        "yellow can",
+        "green can",
+        "cart"
+      ],
+      "dataset": "ChenyuanC/HuMeGo-Real-ChipCart"
+    }
+  }
+}
