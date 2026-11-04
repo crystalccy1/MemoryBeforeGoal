@@ -1,0 +1,31 @@
+WholeBodyMem (Memory before Goal)
+Copyright 2026 The WholeBodyMem authors
+
+Our code is licensed under the Apache License, Version 2.0 (see LICENSE). This repository also contains third-party code,
+listed below with its own licence. Everything not listed below is our own code under the Apache License 2.0.
+
+1. Third-party code in this repository
+--------------------------------------
+
+src/psi/  (Psi0, https://github.com/physical-superintelligence-lab/Psi0, arXiv:2603.12263;
+           Copyright 2026 PSI-lab, USC; Apache License 2.0, see licenses/Psi0-LICENSE.txt)
+  23 files come from Psi0. 16 of them were modified and carry the line "Derived from Psi0 ... and modified" at the top;
+  the other 7 are unchanged. The remaining 30 files (frame sampling, native keyframe memory, SAM 3 object memory,
+  flow-matching utilities and their configs) are our own code.
+
+2. Not included (obtained by the user under their own terms)
+------------------------------------------------------------
+
+  - SAM 3 code (https://github.com/facebookresearch/sam3) and weights (facebook/sam3 on the Hugging Face Hub, gated),
+    under Meta's SAM License. That licence restricts some uses (for example trade-controlled, military and weapons
+    uses) and asks publications that use SAM 3 to acknowledge it. Our code only calls the SAM 3 API.
+  - Python packages installed from PyPI, each under its own licence.
+
+3. Checkpoints (Hugging Face model repository ChenyuanC/MemorybeforeGoal)
+------------------------------------------------------------------------
+
+  The released checkpoints are under the Apache License 2.0. They are fine-tuned from the Psi0 checkpoints published
+  by the Psi0 authors (USC-PSI-Lab/psi-model on the Hugging Face Hub; the Psi0 project is under the Apache License 2.0),
+  whose backbone is Qwen3-VL-2B (Apache License 2.0); vlm/ holds the Qwen3-VL configuration, tokenizer and processor
+  files. Fine-tuning data: the HuMeGo datasets (ChenyuanC/HuMeGo-*, CC BY 4.0) and, for the SIMPLE tasks, the Psi0
+  SIMPLE data (USC-PSI-Lab/psi-data). For the data the Psi0 checkpoints were pre-trained on, see the Psi0 repository.

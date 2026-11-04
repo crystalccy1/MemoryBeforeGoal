@@ -1,0 +1,14 @@
+# SAM3 tracker process of the paper evaluation: the policy environment plus the packages below, with pillow 11.3.0.
+# The tracker can share the policy environment; versions other than these run with a warning.
+torch==2.7.0
+torchvision==0.22.0
+numpy==1.26.4
+scipy==1.15.3
+pillow==11.3.0
+opencv-python==4.11.0.86
+pycocotools==2.0.11
+scikit-image==0.25.2
+timm==1.0.17
+ftfy==6.1.1
+iopath==0.1.10
+portalocker==3.2.0
