@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this code, the checkpoints or the HuMeGo datasets, please cite the paper below."
+title: "Memory before Goal: Role of Pre-History Memory for Humanoid Loco-Manipulation"
+type: software
+authors:
+  - given-names: Chenyuan
+    family-names: Chen
+    affiliation: MBZUAI
+  - given-names: Ran
+    family-names: Ding
+    affiliation: MBZUAI
+  - given-names: Lechen
+    family-names: Zhang
+    affiliation: MBZUAI
+  - given-names: Zewen
+    family-names: He
+    affiliation: MBZUAI
+  - given-names: Yoshihiko
+    family-names: Nakamura
+    affiliation: MBZUAI
+repository-code: "https://github.com/crystalccy1/MemoryBeforeGoal"
+license: Apache-2.0
+keywords:
+  - humanoid robots
+  - loco-manipulation
+  - memory
+  - vision-language-action
+  - benchmark
+preferred-citation:
+  type: article
+  title: "Memory before Goal: Role of Pre-History Memory for Humanoid Loco-Manipulation"
+  authors:
+    - given-names: Chenyuan
+      family-names: Chen
+    - given-names: Ran
+      family-names: Ding
+    - given-names: Lechen
+      family-names: Zhang
+    - given-names: Zewen
+      family-names: He
+    - given-names: Yoshihiko
+      family-names: Nakamura
+  journal: "arXiv preprint arXiv:2610.31166"
+  year: 2026
+  doi: "10.48550/arXiv.2610.31166"
+  url: "https://arxiv.org/abs/2610.31166"
